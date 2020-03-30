@@ -54,7 +54,7 @@ if getent passwd "$user" > /dev/null; then
 fi
 
 if [ -n "$uid" ]; then
-    useraddOptions+=(--non-unique --uid "$uid")
+    useraddOptions+=(--non-unique --shell '/bin/false' --uid "$uid")
 fi
 
 if [ -n "$gid" ]; then
@@ -67,8 +67,10 @@ fi
 
 useradd "${useraddOptions[@]}" "$user"
 mkdir -p "/home/$user"
+mkdir -m2755 "/home/${user}/dev"
 chown root:root "/home/$user"
 chmod 755 "/home/$user"
+echo "input(type=\"imuxsock\" HostName=\"user\" Socket=\"/home/${user}/dev/log\" CreatePath=\"on\")" >> /etc/rsyslog.d/sftp.conf
 
 # Retrieving user id to use it in chown commands instead of the user name
 # to avoid problems on alpine when the user name contains a '.'

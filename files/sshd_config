@@ -12,10 +12,13 @@ UseDNS no
 PermitRootLogin no
 X11Forwarding no
 AllowTcpForwarding no
+AllowAgentForwarding no
+ClientAliveCountMax 5
+ClientAliveInterval 30
 
 # Force sftp and chroot jail
-Subsystem sftp internal-sftp
-ForceCommand internal-sftp
+Subsystem sftp internal-sftp -l INFO
+ForceCommand internal-sftp -l INFO
 ChrootDirectory %h
 
 # Enable this for more logs

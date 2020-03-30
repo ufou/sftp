@@ -64,6 +64,14 @@ if [ ! -f "$userConfFinalPath" ]; then
         exit 3
     fi
 
+    # log internal-sftp activity to /dev/stdout
+    echo "if \$programname == 'internal-sftp' then /dev/stdout" >> /etc/rsyslog.d/sftp.conf
+    echo '& stop' >> /etc/rsyslog.d/sftp.conf
+
+    # log internal-sftp activity to /dev/stderr
+    echo "if \$programname == 'internal-sftp' then /dev/stderr" >> /etc/rsyslog.d/sftp.conf
+    echo '& stop' >> /etc/rsyslog.d/sftp.conf
+
     # Generate unique ssh keys for this container, if needed
     if [ ! -f /etc/ssh/ssh_host_ed25519_key ]; then
         ssh-keygen -t ed25519 -f /etc/ssh/ssh_host_ed25519_key -N ''
@@ -87,9 +95,11 @@ if [ -d /etc/sftp.d ]; then
 fi
 
 if $startSshd; then
-    log "Executing sshd"
+    log "Starting rsyslogd"
+    exec /usr/sbin/rsyslogd -n &
+    log "Starting sshd"
     exec /usr/sbin/sshd -D -e
 else
-    log "Executing $*"
+    log "Starting $*"
     exec "$@"
 fi
